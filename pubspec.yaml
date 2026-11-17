@@ -1,0 +1,38 @@
+name: opportune_jobmate
+description: Opportune JobMate — Flutter client for the FastAPI backend.
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  # The theme uses CardThemeData / DialogThemeData / WidgetStateProperty and
+  # ColorScheme.surfaceContainerHighest, which require Flutter 3.27+
+  # (Dart 3.6+). On an older Flutter these become analyzer errors — see
+  # README "SDK requirement" for the one-line downgrades if you're pinned.
+  sdk: ">=3.6.0 <4.0.0"
+  flutter: ">=3.27.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  http: ^1.2.2               # API calls to the FastAPI backend
+  file_picker: ^8.1.4        # resume/JD PDF & DOCX picking (works on mobile + web)
+  path_provider: ^2.1.4      # temp dir to write the generated .docx to
+  open_filex: ^4.5.0         # open the generated .docx from the OS after download
+  url_launcher: ^6.3.1       # JobRadar external job-site links
+  shared_preferences: ^2.3.3 # local history for the Home dashboard (no backend persistence exists)
+  flutter_secure_storage: ^9.2.2 # JWT access token storage (Keystore/Keychain on mobile; see README)
+  flutter_dotenv: ^6.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - .env

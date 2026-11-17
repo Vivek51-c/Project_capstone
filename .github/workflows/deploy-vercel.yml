@@ -1,0 +1,54 @@
+name: Deploy Flutter Web to Vercel
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Create .env
+        run: |
+          if [ -n "${{ secrets.API_BASE_URL }}" ]; then
+            echo "API_BASE_URL=${{ secrets.API_BASE_URL }}" > .env
+            echo "APP_ENV=production" >> .env
+            echo "API_TIMEOUT_SECONDS=60" >> .env
+          elif [ -f .env.example ]; then
+            cp .env.example .env
+          else
+            touch .env
+          fi
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Web
+        run: |
+          if [ -n "${{ secrets.API_BASE_URL }}" ]; then
+            flutter build web --release --dart-define=API_BASE_URL="${{ secrets.API_BASE_URL }}"
+          else
+            flutter build web --release
+          fi
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        if: env.VERCEL_TOKEN != ''
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+          working-directory: ./build/web
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}

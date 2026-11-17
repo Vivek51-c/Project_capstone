@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Opportune JobMate career tools.">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Opportune JobMate">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>Opportune JobMate</title>
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    /* Prevent default white screen flash */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 50% 20%, #1e293b 0%, #0f172a 50%, #090d16 100%);
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    #app-loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      transition: opacity 0.4s ease-out;
+      pointer-events: auto;
+    }
+
+    #app-loader.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loader-ring {
+      width: 58px;
+      height: 58px;
+      border: 3.5px solid rgba(59, 130, 246, 0.18);
+      border-top-color: #3b82f6;
+      border-radius: 50%;
+      animation: spin 0.9s cubic-bezier(0.5, 0.1, 0.4, 0.9) infinite;
+      box-shadow: 0 0 24px rgba(59, 130, 246, 0.28);
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loader-title {
+      margin-top: 24px;
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: #f8fafc;
+    }
+
+    .loader-subtitle {
+      margin-top: 6px;
+      font-size: 13.5px;
+      color: #94a3b8;
+      letter-spacing: 0.1px;
+    }
+
+    .loader-warning {
+      margin-top: 20px;
+      max-width: 320px;
+      text-align: center;
+      font-size: 12.5px;
+      line-height: 1.45;
+      color: #f59e0b;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.28);
+      padding: 10px 14px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .loader-warning a {
+      color: #60a5fa;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="app-loader">
+    <div class="loader-ring"></div>
+    <div class="loader-title">Opportune JobMate</div>
+    <div class="loader-subtitle">Loading your career workspace...</div>
+    <div id="loader-warning" class="loader-warning">
+      Taking longer than usual.
+      <br>
+      <a onclick="window.location.reload()">Tap here to refresh</a> if the page doesn't appear.
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // 1. Show warning if startup takes unusually long (e.g. slow network or asset compilation)
+      var warningTimer = setTimeout(function() {
+        var el = document.getElementById('loader-warning');
+        if (el) el.style.display = 'block';
+      }, 9000);
+
+      // 2. Hide loader once Flutter view / glass-pane appears
+      function dismissLoader() {
+        clearTimeout(warningTimer);
+        var loader = document.getElementById('app-loader');
+        if (loader && !loader.classList.contains('fade-out')) {
+          loader.classList.add('fade-out');
+          setTimeout(function() {
+            if (loader.parentNode) loader.parentNode.removeChild(loader);
+          }, 450);
+        }
+      }
+
+      window.addEventListener('flutter-first-frame', dismissLoader);
+
+      var observer = new MutationObserver(function() {
+        if (document.querySelector('flutter-view') || document.querySelector('flt-glass-pane')) {
+          observer.disconnect();
+          dismissLoader();
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+
+      // 3. Fallback runner for Flutter web dev / remote device testing:
+      // When testing over LAN IP on mobile devices, DWDS debug websocket can stall
+      // or delay executing window.$dartRunMain(). Once scripts finish loading,
+      // trigger $dartRunMain() so Flutter renders without waiting indefinitely.
+      var runMainCheckCount = 0;
+      var runMainWatcher = setInterval(function() {
+        runMainCheckCount++;
+        if (typeof window.$dartRunMain === 'function' && !window.$dartMainExecuted) {
+          // If modules are loaded or after brief polling, ensure Flutter starts
+          var loader = window.$dartLoader && window.$dartLoader.loader;
+          var isDone = loader && loader.numToLoad > 0 && loader.numLoaded >= loader.numToLoad;
+          if (isDone || runMainCheckCount > 6) {
+            console.log('[Opportune] Starting Flutter web entry point via bootstrap watcher...');
+            try {
+              window.$dartRunMain();
+            } catch (e) {
+              console.error('[Opportune] Error invoking $dartRunMain:', e);
+            }
+            clearInterval(runMainWatcher);
+          }
+        }
+        if (window.$dartMainExecuted || runMainCheckCount > 40) {
+          clearInterval(runMainWatcher);
+        }
+      }, 300);
+    })();
+  </script>
+
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

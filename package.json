@@ -1,0 +1,10 @@
+{
+  "name": "opportune-jobmate-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Opportune JobMate Flutter Web frontend deployment on Vercel",
+  "scripts": {
+    "build": "bash vercel-build.sh",
+    "vercel-build": "bash vercel-build.sh"
+  }
+}
