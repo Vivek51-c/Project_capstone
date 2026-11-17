@@ -52,6 +52,6 @@ app.*.map.json
 # Environment files (default .env is committed for build asset resolution)
 .env.local
 .env.*.local
-/.env
-/.env.example
+.env
+.env.example
 /.env.*
